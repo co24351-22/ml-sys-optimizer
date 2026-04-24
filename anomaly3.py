@@ -1,13 +1,4 @@
-"""
-anomaly.py — 100% ML-Driven System Optimizer
-=============================================
-Models used:
-  - Isolation Forest     → anomaly detection (unsupervised)
-  - DBSCAN               → behavioral clustering (unsupervised)
-  - Local Outlier Factor → density-based outlier scoring
-  - Z-Score ensemble     → statistical cross-validation
-All thresholds are DATA-DRIVEN (mean ± std), not hardcoded.
-"""
+
 
 import pandas as pd
 import numpy as np
