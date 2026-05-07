@@ -202,3 +202,141 @@ for c, grp in df.groupby("DBSCAN_Cluster"):
 df.to_csv("output_with_anomalies.csv", index=False)
 print("\n  Results saved → output_with_anomalies.csv")
 print("="*55 + "\n")
+
+# model graphs 
+import matplotlib.pyplot as plt
+import numpy as np
+
+# ─────────────────────────────────────────────
+# GRAPH 1 — Isolation Forest Scores
+# Lower score = more anomalous
+# ─────────────────────────────────────────────
+plt.figure(figsize=(12, 5))
+
+colors = ['red' if x == "Anomaly" else 'blue' for x in df["ML_Anomaly"]]
+
+plt.scatter(range(len(df)), df["ISO_Score"], c=colors)
+plt.axhline(np.percentile(df["ISO_Score"], 5),
+            color='black',
+            linestyle='--',
+            label='5th Percentile Threshold')
+
+plt.title("Isolation Forest Anomaly Scores")
+plt.xlabel("Sample Index")
+plt.ylabel("Isolation Score")
+plt.legend()
+plt.grid(True)
+
+plt.show()
+
+
+# ─────────────────────────────────────────────
+# GRAPH 2 — Local Outlier Factor Scores
+# More negative = more anomalous
+# ─────────────────────────────────────────────
+plt.figure(figsize=(12, 5))
+
+colors = ['red' if x == "Anomaly" else 'green' for x in df["ML_Anomaly"]]
+
+plt.scatter(range(len(df)), df["LOF_Score"], c=colors)
+
+plt.title("Local Outlier Factor Scores")
+plt.xlabel("Sample Index")
+plt.ylabel("LOF Score")
+plt.grid(True)
+
+plt.show()
+
+
+# ─────────────────────────────────────────────
+# GRAPH 3 — DBSCAN Cluster Visualization
+# Noise points (-1) shown separately
+# ─────────────────────────────────────────────
+plt.figure(figsize=(10, 6))
+
+scatter = plt.scatter(
+    df["CPU_Usage"],
+    df["Memory_Usage"],
+    c=df["DBSCAN_Cluster"],
+    cmap='tab10',
+    s=80
+)
+
+plt.title("DBSCAN Clustering")
+plt.xlabel("CPU Usage (%)")
+plt.ylabel("Memory Usage (%)")
+
+plt.colorbar(scatter, label="Cluster ID")
+plt.grid(True)
+
+plt.show()
+
+
+# ─────────────────────────────────────────────
+# GRAPH 4 — Ensemble Voting Distribution
+# Shows how many models agreed
+# ─────────────────────────────────────────────
+plt.figure(figsize=(8, 5))
+
+vote_counts = df["Vote_Score"].value_counts().sort_index()
+
+plt.bar(vote_counts.index, vote_counts.values)
+
+plt.title("Ensemble Voting Distribution")
+plt.xlabel("Number of Models Agreeing")
+plt.ylabel("Number of Samples")
+
+plt.xticks([0,1,2,3,4])
+plt.grid(axis='y')
+
+plt.show()
+
+
+# ─────────────────────────────────────────────
+# GRAPH 5 — Time Series with Anomalies
+# ─────────────────────────────────────────────
+plt.figure(figsize=(14, 6))
+
+plt.plot(df["CPU_Usage"].values, label="CPU Usage")
+
+anomaly_idx = df[df["ML_Anomaly"] == "Anomaly"].index
+
+plt.scatter(
+    anomaly_idx,
+    df.loc[anomaly_idx, "CPU_Usage"],
+    color='red',
+    s=100,
+    label='Anomaly'
+)
+
+plt.title("CPU Usage with Detected Anomalies")
+plt.xlabel("Sample Index")
+plt.ylabel("CPU Usage (%)")
+
+plt.legend()
+plt.grid(True)
+
+plt.show()
+
+
+# ─────────────────────────────────────────────
+# GRAPH 6 — Model Comparison
+# How many anomalies each model detected
+# ─────────────────────────────────────────────
+model_counts = {
+    "IsolationForest": (iso_labels == -1).sum(),
+    "LOF": (lof_labels == -1).sum(),
+    "DBSCAN": (cluster_labels == -1).sum(),
+    "Z-Score": z_anomaly.sum()
+}
+
+plt.figure(figsize=(8, 5))
+
+plt.bar(model_counts.keys(), model_counts.values())
+
+plt.title("Anomalies Detected by Each Model")
+plt.ylabel("Count")
+
+plt.grid(axis='y')
+
+plt.show()
