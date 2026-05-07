@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import numpy as np
 import psutil
@@ -180,9 +178,8 @@ print(f"\n  CPU  — Mean: {cpu_mean:.2f}%  Std: {cpu_std:.2f}%  Max: {df['CPU_U
 print(f"  MEM  — Mean: {mem_mean:.2f}%  Max: {df['Memory_Usage'].max():.2f}%")
 print(f"  Procs— Mean: {df['Process_Count'].mean():.0f}  Max: {df['Process_Count'].max()}")
 
-# ML-derived anomaly threshold (not hardcoded)
-iso_threshold = np.percentile(iso_scores, 5)
-print(f"\n  ISO Forest threshold : {iso_threshold:.4f}  (5th percentile, data-driven)")
+
+
 
 peak_time = df.loc[df["CPU_Usage"].idxmax(), "Time"]
 print(f"  Peak CPU at          : {peak_time}")
